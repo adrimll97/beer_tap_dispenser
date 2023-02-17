@@ -48,4 +48,30 @@ RSpec.describe DispenserUsage, type: :model do
       end
     end
   end
+
+  describe 'Methods' do
+    context '#calculate_usage_spend' do
+      let(:opened_at) { Time.rfc3339('2022-01-01T02:00:00Z') }
+      let(:closed_at) { Time.rfc3339('2022-01-01T02:00:50Z') }
+      let(:now) { Time.rfc3339('2022-01-01T02:01:00Z') }
+      let(:dispenser) { create(:dispenser, flow_volume: 0.065) }
+      let!(:dispenser_usage_closed) do
+        create(:dispenser_usage, dispenser: dispenser, opened_at: opened_at, closed_at: closed_at)
+      end
+      let!(:dispenser_usage_not_closed) do
+        create(:dispenser_usage, dispenser: dispenser, opened_at: opened_at, closed_at: nil)
+      end
+
+      it 'Calculate spend with closed_at time' do
+        result = dispenser_usage_closed.calculate_usage_spend
+        expect(result).to eq(39.8125)
+      end
+
+      it 'Calculate spend without closed_at time' do
+        expect(Time).to receive(:now).and_return(now)
+        result = dispenser_usage_not_closed.calculate_usage_spend
+        expect(result).to eq(47.775000000000006)
+      end
+    end
+  end
 end

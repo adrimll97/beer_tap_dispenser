@@ -10,6 +10,12 @@ class DispenserUsage < ApplicationRecord
 
   after_update_commit :calculate_total_spend
 
+  def calculate_usage_spend
+    end_time = closed_at || Time.now
+    time_opened = end_time - opened_at
+    time_opened * dispenser.flow_volume * VALUE
+  end
+
   private
 
   def closed_at_after_opened_at
@@ -19,8 +25,6 @@ class DispenserUsage < ApplicationRecord
   end
 
   def calculate_total_spend
-    time_opened = closed_at - opened_at
-    spend = time_opened * dispenser.flow_volume * VALUE
-    update_columns(total_spend: spend)
+    update_columns(total_spend: calculate_usage_spend)
   end
 end
