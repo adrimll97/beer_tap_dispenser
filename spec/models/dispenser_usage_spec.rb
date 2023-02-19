@@ -11,6 +11,15 @@ RSpec.describe DispenserUsage, type: :model do
       end
     end
 
+    context 'Dispenser usage with opened_at in the future' do
+      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now + 1.hour, closed_at: nil) }
+
+      it 'Is invalid' do
+        expect(dispenser_usage.valid?).to be_falsey
+        expect(dispenser_usage.errors.attribute_names).to eq([:opened_at])
+      end
+    end
+
     context 'Dispenser usage with opened_at after closed_at' do
       let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now, closed_at: Time.now - 1.minute) }
 

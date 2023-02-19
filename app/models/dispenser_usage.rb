@@ -6,6 +6,7 @@ class DispenserUsage < ApplicationRecord
   belongs_to :dispenser
 
   validates :opened_at, presence: true
+  validate :opened_at_cannot_be_future
   validate :closed_at_after_opened_at
 
   after_update_commit :calculate_total_spend
@@ -17,6 +18,12 @@ class DispenserUsage < ApplicationRecord
   end
 
   private
+
+  def opened_at_cannot_be_future
+    return if opened_at.present? && opened_at <= Time.now
+
+    errors.add(:opened_at, 'cannot be in the future')
+  end
 
   def closed_at_after_opened_at
     return if closed_at.nil? || closed_at > opened_at
