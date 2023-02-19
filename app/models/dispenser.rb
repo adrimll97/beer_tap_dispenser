@@ -5,7 +5,7 @@ class Dispenser < ApplicationRecord
 
   validates :flow_volume, presence: true, numericality: true
 
-  def usages
-    dispenser_usages.count
+  def current_usage
+    dispenser_usages.find_by(closed_at: nil) || dispenser_usages.new
   end
 end

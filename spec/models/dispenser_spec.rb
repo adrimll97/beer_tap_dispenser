@@ -21,13 +21,19 @@ RSpec.describe Dispenser, type: :model do
   end
 
   describe 'Methods' do
-    context '#usages' do
-      let(:dispenser) { create(:dispenser) }
-      let!(:dispenser_usage1) { create(:dispenser_usage, dispenser: dispenser) }
-      let!(:dispenser_usage2) { create(:dispenser_usage, dispenser: dispenser) }
+    context '#current_usage' do
+      let(:dispenser1) { create(:dispenser) }
+      let(:dispenser2) { create(:dispenser) }
+      let!(:dispenser_usage1) do
+        create(:dispenser_usage, dispenser: dispenser1, closed_at: nil)
+      end
 
-      it 'Return the number of usages' do
-        expect(dispenser.usages).to eq(2)
+      it 'Return dispenser_usage opened' do
+        expect(dispenser1.current_usage.id).to eq(dispenser_usage1.id)
+      end
+
+      it 'Return new dispenser_usage' do
+        expect(dispenser2.current_usage.id).to be_nil
       end
     end
   end
