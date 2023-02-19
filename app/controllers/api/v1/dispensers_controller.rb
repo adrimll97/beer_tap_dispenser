@@ -30,12 +30,17 @@ class Api::V1::DispensersController < ApplicationController
   end
 
   def spending
+    render status: '200', json: build_spending_response
+  rescue StandardError => _e
+    render status: '500', plain: 'Unexpected API error'
   end
 
   private
 
   def set_dispenser
     @dispenser = Dispenser.find(params[:id])
+  rescue ActiveRecord::RecordNotFound => _e
+    render status: '404', plain: 'Requested dispenser does not exist'
   end
 
   def dispenser_params
@@ -64,5 +69,17 @@ class Api::V1::DispensersController < ApplicationController
       return false
     end
     true
+  end
+
+  def build_spending_response
+    amount = 0.0
+    usages = []
+    dispenser.dispenser_usages.find_each do |usage|
+      usage_spend = usage.total_spend || usage.calculate_usage_spend
+      amount += usage_spend
+      usages << { opened_at: usage.opened_at, closed_at: usage.closed_at,
+                  flow_volume: dispenser.flow_volume, total_spend: usage_spend }
+    end
+    { amount: amount, usages: usages }
   end
 end
