@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Dispensers', type: :request do
@@ -31,14 +33,14 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
     context 'success' do
       it 'returns 202 opening the tap with all params' do
         params = { status: 'open', updated_at: '2022-01-01T02:00:00Z' }
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: params
+        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('202')
       end
 
       it 'returns 202 closing the tap and without updated_at param' do
         dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute)
         params = { status: 'close' }
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: params
+        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('202')
       end
     end
@@ -47,13 +49,13 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
       it 'returns 409 opening the tap' do
         dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute)
         params = { status: 'open' }
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: params
+        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('409')
       end
 
       it 'returns 409 closing the tap' do
         params = { status: 'close', updated_at: '2022-01-01T02:00:00Z' }
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: params
+        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('409')
       end
 
@@ -64,7 +66,7 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
 
       it 'returns 500 with invalidad status' do
         params = { status: 'invalid' }
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: params
+        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('500')
       end
     end
@@ -76,10 +78,10 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
     let(:now) { Time.rfc3339('2022-01-01T02:01:00Z') }
     let(:dispenser) { create(:dispenser, flow_volume: 0.065) }
     let!(:dispenser_usage_closed) do
-      create(:dispenser_usage, { dispenser: dispenser, opened_at: opened_at, closed_at: closed_at, total_spend: nil })
+      create(:dispenser_usage, { dispenser:, opened_at:, closed_at:, total_spend: nil })
     end
     let!(:dispenser_usage_not_closed) do
-      create(:dispenser_usage, dispenser: dispenser, opened_at: opened_at, closed_at: nil, total_spend: nil)
+      create(:dispenser_usage, dispenser:, opened_at:, closed_at: nil, total_spend: nil)
     end
 
     let(:success_response) do

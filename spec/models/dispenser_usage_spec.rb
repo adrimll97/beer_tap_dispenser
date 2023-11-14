@@ -1,4 +1,6 @@
-require "rails_helper"
+# frozen_string_literal: true
+
+require 'rails_helper'
 
 RSpec.describe DispenserUsage, type: :model do
   describe 'Validations' do
@@ -65,10 +67,10 @@ RSpec.describe DispenserUsage, type: :model do
       let(:now) { Time.rfc3339('2022-01-01T02:01:00Z') }
       let(:dispenser) { create(:dispenser, flow_volume: 0.065) }
       let!(:dispenser_usage_closed) do
-        create(:dispenser_usage, dispenser: dispenser, opened_at: opened_at, closed_at: closed_at)
+        create(:dispenser_usage, dispenser:, opened_at:, closed_at:)
       end
       let!(:dispenser_usage_not_closed) do
-        create(:dispenser_usage, dispenser: dispenser, opened_at: opened_at, closed_at: nil)
+        create(:dispenser_usage, dispenser:, opened_at:, closed_at: nil)
       end
 
       it 'Calculate spend with closed_at time' do
