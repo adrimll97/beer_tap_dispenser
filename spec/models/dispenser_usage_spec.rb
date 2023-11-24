@@ -26,27 +26,33 @@ RSpec.describe DispenserUsage, type: :model do
       it { is_expected.to validate_numericality_of(:price) }
     end
 
-    describe '#opened_at_cannot_be_future' do
-      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now + 1.hour, closed_at: nil) }
+    describe '#opened_at' do
+      it { is_expected.to validate_presence_of(:opened_at) }
 
-      before do
-        dispenser_usage.valid?
-      end
+      context 'cannot be in the future' do
+        let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now + 1.hour, closed_at: nil) }
 
-      it 'is invalid with opened_at in the future' do
-        expect(dispenser_usage.errors[:opened_at].size).to eq(1)
+        before do
+          dispenser_usage.valid?
+        end
+
+        it 'is invalid with opened_at in the future' do
+          expect(dispenser_usage.errors[:opened_at].size).to eq(1)
+        end
       end
     end
 
-    describe '#closed_at_must_be_after_opened_at' do
-      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now, closed_at: Time.now - 1.minute) }
+    describe '#closed_at' do
+      context 'must be after opened_at' do
+        let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now, closed_at: Time.now - 1.minute) }
 
-      before do
-        dispenser_usage.valid?
-      end
+        before do
+          dispenser_usage.valid?
+        end
 
-      it 'is invalid with closed_at after opened_at' do
-        expect(dispenser_usage.errors[:closed_at].size).to eq(1)
+        it 'is invalid with closed_at after opened_at' do
+          expect(dispenser_usage.errors[:closed_at].size).to eq(1)
+        end
       end
     end
   end
