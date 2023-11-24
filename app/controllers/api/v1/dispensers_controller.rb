@@ -46,7 +46,7 @@ module Api
       end
 
       def dispenser_params
-        params.permit(:flow_volume)
+        params.require(:dispenser).permit(:flow_volume)
       end
 
       def dispenser_status_params

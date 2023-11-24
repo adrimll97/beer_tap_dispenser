@@ -9,14 +9,14 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
 
     context 'success' do
       it 'returns 200' do
-        post '/api/v1/dispensers', params: { flow_volume: valid_flow }
+        post '/api/v1/dispensers', params: { dispenser: { flow_volume: valid_flow } }
         expect(response).to have_http_status('200')
       end
     end
 
     context 'fails' do
       it 'returns 500 with invalid flow_volume' do
-        post '/api/v1/dispensers', params: { flow_volume: invalid_flow }
+        post '/api/v1/dispensers', params: { dispenser: { flow_volume: invalid_flow } }
         expect(response).to have_http_status('500')
       end
 
@@ -38,7 +38,9 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
       end
 
       it 'returns 202 closing the tap and without updated_at param' do
-        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute)
+        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute,
+                                          flow_volume: dispenser.flow_volume,
+                                          price: dispenser.price)
         params = { status: 'close' }
         put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('202')
@@ -47,7 +49,9 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
 
     context 'fails' do
       it 'returns 409 opening the tap' do
-        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute)
+        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute,
+                                          flow_volume: dispenser.flow_volume,
+                                          price: dispenser.price)
         params = { status: 'open' }
         put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
         expect(response).to have_http_status('409')

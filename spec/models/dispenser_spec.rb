@@ -4,22 +4,27 @@ require 'rails_helper'
 
 RSpec.describe Dispenser, type: :model do
   describe 'Validations' do
-    context 'Dispenser without flow_volume' do
-      let(:dispenser) { build(:dispenser, flow_volume: nil) }
-
-      it 'Is invalid' do
-        expect(dispenser.valid?).to be_falsey
-        expect(dispenser.errors.attribute_names).to eq([:flow_volume])
-      end
-    end
-
-    context 'Dispenser with all data' do
+    describe 'Check factory validity' do
       let(:dispenser) { build(:dispenser) }
 
-      it 'Is valid' do
-        expect(dispenser.valid?).to be_truthy
+      it 'is valid with valid attributes' do
+        expect(dispenser).to be_valid
       end
     end
+
+    describe '#flow_volume' do
+      it { is_expected.to validate_presence_of(:flow_volume) }
+      it { is_expected.to validate_numericality_of(:flow_volume) }
+    end
+
+    describe '#price' do
+      it { is_expected.to validate_presence_of(:price) }
+      it { is_expected.to validate_numericality_of(:price) }
+    end
+  end
+
+  describe 'Associations' do
+    it { is_expected.to have_many(:dispenser_usages) }
   end
 
   describe 'Methods' do

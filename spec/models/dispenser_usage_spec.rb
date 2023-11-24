@@ -4,48 +4,55 @@ require 'rails_helper'
 
 RSpec.describe DispenserUsage, type: :model do
   describe 'Validations' do
-    context 'Dispenser usage without opened_at' do
-      let(:dispenser_usage) { build(:dispenser_usage, opened_at: nil, closed_at: nil) }
-
-      it 'Is invalid' do
-        expect(dispenser_usage.valid?).to be_falsey
-        expect(dispenser_usage.errors.attribute_names).to eq([:opened_at])
-      end
-    end
-
-    context 'Dispenser usage with opened_at in the future' do
-      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now + 1.hour, closed_at: nil) }
-
-      it 'Is invalid' do
-        expect(dispenser_usage.valid?).to be_falsey
-        expect(dispenser_usage.errors.attribute_names).to eq([:opened_at])
-      end
-    end
-
-    context 'Dispenser usage with opened_at after closed_at' do
-      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now, closed_at: Time.now - 1.minute) }
-
-      it 'Is invalid' do
-        expect(dispenser_usage.valid?).to be_falsey
-        expect(dispenser_usage.errors.attribute_names).to eq([:closed_at])
-      end
-    end
-
-    context 'Dispenser usage without closed_at and total_spend' do
-      let(:dispenser_usage) { build(:dispenser_usage, closed_at: nil, total_spend: nil) }
-
-      it 'Is valid' do
-        expect(dispenser_usage.valid?).to be_truthy
-      end
-    end
-
-    context 'Dispenser usage with all data' do
+    describe 'Check factory validity' do
       let(:dispenser_usage) { build(:dispenser_usage) }
 
-      it 'Is valid' do
-        expect(dispenser_usage.valid?).to be_truthy
+      it 'is valid with valid attributes' do
+        expect(dispenser_usage).to be_valid
       end
     end
+
+    describe '#opened_at' do
+      it { is_expected.to validate_presence_of(:opened_at) }
+    end
+
+    describe '#flow_volume' do
+      it { is_expected.to validate_presence_of(:flow_volume) }
+      it { is_expected.to validate_numericality_of(:flow_volume) }
+    end
+
+    describe '#price' do
+      it { is_expected.to validate_presence_of(:price) }
+      it { is_expected.to validate_numericality_of(:price) }
+    end
+
+    describe '#opened_at_cannot_be_future' do
+      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now + 1.hour, closed_at: nil) }
+
+      before do
+        dispenser_usage.valid?
+      end
+
+      it 'is invalid with opened_at in the future' do
+        expect(dispenser_usage.errors[:opened_at].size).to eq(1)
+      end
+    end
+
+    describe '#closed_at_must_be_after_opened_at' do
+      let(:dispenser_usage) { build(:dispenser_usage, opened_at: Time.now, closed_at: Time.now - 1.minute) }
+
+      before do
+        dispenser_usage.valid?
+      end
+
+      it 'is invalid with closed_at after opened_at' do
+        expect(dispenser_usage.errors[:closed_at].size).to eq(1)
+      end
+    end
+  end
+
+  describe 'Associations' do
+    it { is_expected.to belong_to(:dispenser) }
   end
 
   describe 'Callbacks' do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_16_194124) do
+ActiveRecord::Schema.define(version: 2023_11_23_195522) do
 
   create_table "dispenser_usages", force: :cascade do |t|
     t.integer "dispenser_id", null: false
@@ -19,6 +19,8 @@ ActiveRecord::Schema.define(version: 2023_02_16_194124) do
     t.float "total_spend"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "flow_volume", null: false
+    t.float "price", null: false
     t.index ["dispenser_id"], name: "index_dispenser_usages_on_dispenser_id"
   end
 
@@ -26,6 +28,7 @@ ActiveRecord::Schema.define(version: 2023_02_16_194124) do
     t.float "flow_volume", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "price", default: 12.25, null: false
   end
 
   add_foreign_key "dispenser_usages", "dispensers"
