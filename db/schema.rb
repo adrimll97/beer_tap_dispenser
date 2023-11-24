@@ -10,15 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_23_195522) do
-
+ActiveRecord::Schema[7.0].define(version: 2023_11_24_135031) do
   create_table "dispenser_usages", force: :cascade do |t|
     t.integer "dispenser_id", null: false
-    t.datetime "opened_at", null: false
-    t.datetime "closed_at"
+    t.datetime "opened_at", precision: nil, null: false
+    t.datetime "closed_at", precision: nil
     t.float "total_spend"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.float "flow_volume", null: false
     t.float "price", null: false
     t.index ["dispenser_id"], name: "index_dispenser_usages_on_dispenser_id"
@@ -26,8 +25,8 @@ ActiveRecord::Schema.define(version: 2023_11_23_195522) do
 
   create_table "dispensers", force: :cascade do |t|
     t.float "flow_volume", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.float "price", default: 12.25, null: false
   end
 
