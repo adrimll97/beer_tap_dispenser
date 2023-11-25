@@ -6,7 +6,5 @@ class Dispenser < ApplicationRecord
   validates :flow_volume, presence: true, numericality: true
   validates :price, presence: true, numericality: true
 
-  def current_usage
-    dispenser_usages.find_by(closed_at: nil) || dispenser_usages.new(flow_volume: flow_volume, price: price)
-  end
+  enum :status, { close: 0, open: 1 }
 end

@@ -30,48 +30,61 @@ RSpec.describe 'Api::V1::Dispensers', type: :request do
   describe 'PUT /status' do
     let(:dispenser) { create(:dispenser) }
 
-    context 'success' do
-      it 'returns 202 opening the tap with all params' do
-        params = { status: 'open', updated_at: '2022-01-01T02:00:00Z' }
-        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
-        expect(response).to have_http_status('202')
+    shared_examples 'have http status' do |http_status|
+      before do
+        put("/api/v1/dispensers/#{dispenser.id}/status", params:)
       end
 
-      it 'returns 202 closing the tap and without updated_at param' do
-        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute,
-                                          flow_volume: dispenser.flow_volume,
-                                          price: dispenser.price)
-        params = { status: 'close' }
-        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
-        expect(response).to have_http_status('202')
+      it { expect(response).to have_http_status(http_status) }
+    end
+
+    context 'without params' do
+      let(:params) { {} }
+
+      include_examples 'have http status', 422
+    end
+
+    context 'with invalid params' do
+      context 'with status no open or close' do
+        let(:params) { { dispenser: { status: 'foo', updated_at: '2023-01-01T02:00:00Z' } } }
+
+        include_examples 'have http status', 422
       end
     end
 
-    context 'fails' do
-      it 'returns 409 opening the tap' do
-        dispenser.dispenser_usages.create(opened_at: Time.now - 1.minute,
-                                          flow_volume: dispenser.flow_volume,
-                                          price: dispenser.price)
-        params = { status: 'open' }
-        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
-        expect(response).to have_http_status('409')
+    context 'with valid params' do
+      let(:change_status_service) { double(ChangeDispenserStatus) }
+      let(:status) { Dispenser.statuses.keys.sample }
+      let(:updated_at) { '2023-01-01T02:00:00Z' }
+      let(:params) { { dispenser: { status:, updated_at: } } }
+
+      before do
+        allow(ChangeDispenserStatus).to receive(:new).with(dispenser, status, updated_at)
+                                                     .and_return(change_status_service)
       end
 
-      it 'returns 409 closing the tap' do
-        params = { status: 'close', updated_at: '2022-01-01T02:00:00Z' }
-        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
-        expect(response).to have_http_status('409')
+      context 'calling service return false' do
+        before do
+          allow(change_status_service).to receive(:change_status).and_return(false)
+        end
+
+        include_examples 'have http status', 409
       end
 
-      it 'returns 500 without params' do
-        put "/api/v1/dispensers/#{dispenser.id}/status", params: {}
-        expect(response).to have_http_status('500')
+      context 'calling service return true' do
+        before do
+          allow(change_status_service).to receive(:change_status).and_return(true)
+        end
+
+        include_examples 'have http status', 202
       end
 
-      it 'returns 500 with invalidad status' do
-        params = { status: 'invalid' }
-        put("/api/v1/dispensers/#{dispenser.id}/status", params: params)
-        expect(response).to have_http_status('500')
+      context 'calling service raise an error' do
+        before do
+          allow(change_status_service).to receive(:change_status).and_raise('foo')
+        end
+
+        include_examples 'have http status', 500
       end
     end
   end

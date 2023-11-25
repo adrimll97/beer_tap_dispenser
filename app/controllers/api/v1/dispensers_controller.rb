@@ -3,10 +3,11 @@
 module Api
   module V1
     class DispensersController < ApplicationController
-      VALID_STATUSES = {
-        open: 'opened_at',
-        close: 'closed_at'
-      }.with_indifferent_access.freeze
+      STATUS_CHANGED = 'Status of the tap changed correctly'
+      DISPENSER_NOT_FOUND = 'Requested dispenser does not exist'
+      SAME_STATUS = 'Dispenser is already opened/closed'
+      INVALID_STATUS = 'Request body property status must be equal to one of the allowed values: open, close'
+      UNEXPECTED_ERROR = 'Unexpected API error'
 
       before_action :set_dispenser, only: %i[status spending]
       attr_accessor :dispenser
@@ -19,14 +20,16 @@ module Api
       end
 
       def status
-        current_usage = dispenser.current_usage
-        if valid_status?(current_usage)
-          update_time = updated_at_time
-          current_usage.update!({ "#{VALID_STATUSES[dispenser_status_params[:status]]}": update_time })
-          render status: '202', plain: 'Status of the tap changed correctly'
-        else
-          render status: '409', plain: 'Dispenser is already opened/closed'
-        end
+        render_invalid_status_error and return unless valid_status_params?
+
+        status = dispenser_status_params[:status]
+        updated_at = dispenser_status_params[:updated_at]
+        change_status = ChangeDispenserStatus.new(dispenser, status, updated_at).change_status
+        render status: '409', plain: SAME_STATUS and return unless change_status
+
+        render status: '202', plain: STATUS_CHANGED
+      rescue ActionController::ParameterMissing => _e
+        render_invalid_status_error
       rescue StandardError => _e
         render_api_error
       end
@@ -42,7 +45,7 @@ module Api
       def set_dispenser
         @dispenser = Dispenser.find(params[:id])
       rescue ActiveRecord::RecordNotFound => _e
-        render status: '404', plain: 'Requested dispenser does not exist'
+        render status: '404', plain: DISPENSER_NOT_FOUND
       end
 
       def dispenser_params
@@ -52,26 +55,13 @@ module Api
       def dispenser_status_params
         return @dispenser_status_params if @dispenser_status_params.present?
 
-        @dispenser_status_params = params.permit(:id, :status, :updated_at).tap do |dispenser_status_params|
-          dispenser_status_params.require(:status)
-        end
-        @dispenser_status_params.delete_if do |key, val|
-          key == 'status' && VALID_STATUSES.keys.exclude?(val)
+        @dispenser_status_params = params.require(:dispenser).permit(:status, :updated_at).tap do |status_params|
+          status_params.require(:status)
         end
       end
 
-      def updated_at_time
-        dispenser_status_params[:updated_at].present? ? Time.rfc3339(dispenser_status_params[:updated_at]) : Time.now
-      end
-
-      def valid_status?(current_usage)
-        status_param = dispenser_status_params[:status]
-        already_open = current_usage.opened_at.present?
-
-        return false if status_param == 'open' && already_open
-        return false if status_param == 'close' && !already_open
-
-        true
+      def valid_status_params?
+        Dispenser.statuses.keys.include? dispenser_status_params[:status]
       end
 
       def build_spending_response
@@ -87,7 +77,11 @@ module Api
       end
 
       def render_api_error
-        render status: '500', plain: 'Unexpected API error'
+        render status: '500', plain: UNEXPECTED_ERROR
+      end
+
+      def render_invalid_status_error
+        render status: '422', plain: INVALID_STATUS
       end
     end
   end

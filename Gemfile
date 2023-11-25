@@ -35,6 +35,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 6.0.0'
   gem 'shoulda-matchers', '~> 5.0'
   gem 'simplecov', require: false
+  gem 'timecop', '~> 0.9.8'
 end
 
 group :development do

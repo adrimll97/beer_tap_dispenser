@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_24_135031) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_24_200953) do
   create_table "dispenser_usages", force: :cascade do |t|
     t.integer "dispenser_id", null: false
     t.datetime "opened_at", precision: nil, null: false
@@ -28,6 +28,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_24_135031) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "price", default: 12.25, null: false
+    t.integer "status", default: 0, null: false
   end
 
   add_foreign_key "dispenser_usages", "dispensers"
