@@ -35,7 +35,7 @@ module Api
       end
 
       def spending
-        render status: '200', json: build_spending_response
+        render status: '200', json: CalculateDispenserSpend.new(dispenser).total_spend
       rescue StandardError => _e
         render_api_error
       end
@@ -62,18 +62,6 @@ module Api
 
       def valid_status_params?
         Dispenser.statuses.keys.include? dispenser_status_params[:status]
-      end
-
-      def build_spending_response
-        amount = 0.0
-        usages = []
-        dispenser.dispenser_usages.find_each do |usage|
-          usage_spend = usage.total_spend || usage.calculate_usage_spend
-          amount += usage_spend
-          usages << { opened_at: usage.opened_at, closed_at: usage.closed_at,
-                      flow_volume: dispenser.flow_volume, total_spend: usage_spend }
-        end
-        { amount:, usages: }
       end
 
       def render_api_error
