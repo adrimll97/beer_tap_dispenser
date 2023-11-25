@@ -34,7 +34,8 @@ To test the API you should use an application to make API calls, such as `Postma
 curl --request POST --url localhost:3000/api/v1/dispensers --header 'Content-Type: application/json' --data '{"flow_volume": 0.0653}'
 ```
 ```
-curl --request PUT --url localhost:3000/api/v1/dispensers/1/status--header 'Content-Type: application/json' --data '{"status": "open", "updated_at": "2022-01-01T02:00:00Z"}'
+curl --request PUT --url localhost:3000/api/v1/dispensers/1/status --header 'Content-Type: application/json' --data '{"status": "open", "updated_at": "2022-01-01T02:00:00Z"}'
+curl --request PUT --url localhost:3000/api/v1/dispensers/1/status --header 'Content-Type: application/json' --data '{"status": "close", "updated_at": "2022-01-01T02:00:10Z"}'
 ```
 ```
 curl --request GET --url localhost:3000/api/v1/dispensers/1/spending --header 'Content-Type: application/json'
