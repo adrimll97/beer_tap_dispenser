@@ -2,13 +2,17 @@
 
 ### Versions and dependencies:
 
-The versions of Ruby and Rails used are Ruby 3.0.0 and Rails 6.1.4. The database used is the one recommended by the Ruby on Rails getting started guide, SQLite3. To install all the dependencies you can follow the above mentioned getting started guide https://guides.rubyonrails.org/getting_started.html#creating-a-new-rails-project-installing-rails
+The versions of Ruby and Rails used are Ruby 3.2.2 and Rails 7. The database used is the one recommended by the Ruby on Rails getting started guide, SQLite3.
 
 ### Configuration:
 
 Once all the above dependencies are installed you can clone the repository 
 ```
 git clone git@github.com:adrimll97/beer_tap_dispenser.git
+```
+Once inside the project, you need to install all the gem dependencies:
+```
+bundle install
 ```
 To set up the database you just need to launch the project migrations:
 ```
@@ -25,8 +29,8 @@ With this we would have the project running and listening on port 3000.
 
 The project has the following tables:
 ```
-Dispenser: [id, flow_volume, created_at, updated_at].
-Dispenser Usage: [id, dispenser_id, opened_at, closed_at, total_spend, created_at, updated_at].
+Dispenser(id: integer, flow_volume: float, created_at: datetime, updated_at: datetime, price: float, status: integer)
+DispenserUsage(id: integer, dispenser_id: integer, opened_at: datetime, closed_at: datetime, total_spend: float, created_at: datetime, updated_at: datetime, flow_volume: float, price: float)
 ```
 The API has been developed following the documentations available at `https://rviewer.stoplight.io/docs/beer-tap-dispenser/9277750c26224-create-a-new-dispenser`.
 To test the API you should use an application to make API calls, such as `Postman`, or directly with curl:
