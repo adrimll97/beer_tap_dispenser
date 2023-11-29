@@ -8,7 +8,7 @@ The versions of Ruby and Rails used are Ruby 3.0.0 and Rails 6.1.4. The database
 
 Once all the above dependencies are installed you can clone the repository 
 ```
-git clone git@github.com:Rviewer-Challenges/c28u9Gz6QfFrYP2s26Zi.git
+git clone git@github.com:adrimll97/beer_tap_dispenser.git
 ```
 To set up the database you just need to launch the project migrations:
 ```
